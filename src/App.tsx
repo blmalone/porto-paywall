@@ -16,7 +16,7 @@ function App() {
 
   return (
     <>
-      <h1>Minimal Reproduction of WebAuthn Signature Issue</h1>
+      <h1>WebAuthn Signature Issue Reproduction</h1>
       
       {!isConnected ? (
         <div className="card">

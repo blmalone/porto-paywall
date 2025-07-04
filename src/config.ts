@@ -4,7 +4,7 @@ import { baseSepolia } from 'wagmi/chains'
   
 export const wagmiConfig = createConfig({  
   chains: [baseSepolia],  
-  connectors: [porto()],
+  connectors: [porto({merchantRpcUrl: "http://localhost:8787/rpc"})],
   transports: {  
     [baseSepolia.id]: http(),  
   },  
