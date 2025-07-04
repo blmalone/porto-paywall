@@ -24,8 +24,8 @@ export const ReproduceWebAuthnSignatureIssue: React.FC = () => {
 
     try {
       const digest = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-      console.log('🔄 Step 1: Getting digest from server (mock) - ', digest);
-      console.log('🔄 Step 2: Signing digest with WebAuthn key...');
+      console.log('🔄 Step 1: Getting digest...', digest);
+      console.log('🔄 Step 2: Signing digest with WebAuthn key for address (', address, ')...');
       
       const signature = await walletClient.signMessage({
         account: address,
