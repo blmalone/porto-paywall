@@ -1,6 +1,7 @@
 import './App.css'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { ReproduceWebAuthnSignatureIssue } from './bug'
+import { PurchaseButton } from './purchase-button'
+import { DelegatePurchaseButton } from './purchase-button-delegate'
 
 function App() {
   const { address, isConnected } = useAccount()
@@ -16,8 +17,9 @@ function App() {
 
   return (
     <>
-      <h1>WebAuthn Signature Issue Reproduction</h1>
-      
+      <h1>⛅ Weather Foreseer 🌧️</h1>
+      <p><i>Get next year's weather forecast today.</i></p>
+
       {!isConnected ? (
         <div className="card">
           <h2>Connect Your Wallet</h2>
@@ -26,14 +28,18 @@ function App() {
             onClick={handleConnect}
             disabled={isPending}
             style={{
-              padding: '12px 24px',
-              fontSize: '16px',
+              padding: '10px 20px',
+              fontSize: '14px',
               backgroundColor: isPending ? '#ccc' : '#007bff',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               cursor: isPending ? 'not-allowed' : 'pointer',
-              marginTop: '16px'
+              marginTop: '16px',
+              minHeight: '40px',
+              fontWeight: '500',
+              transition: 'background-color 0.2s',
+              fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif'
             }}
           >
             {isPending ? 'Connecting...' : 'Connect Porto Wallet'}
@@ -41,34 +47,20 @@ function App() {
         </div>
       ) : (
         <div className="card">
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '20px',
-            padding: '10px',
-            backgroundColor: '#f0f8ff',
-            borderRadius: '8px'
-          }}>
-            <div>
-              <strong>Connected:</strong> {address?.slice(0, 6)}...{address?.slice(-4)}
+          <div className="connection-header">
+            <div className="connection-info">
+              <strong>Connected:</strong> <a href={`https://sepolia.basescan.org/address/${address}`} target="_blank" rel="noopener noreferrer">{address?.slice(0, 6)}...{address?.slice(-4)}</a>
             </div>
             <button 
               onClick={() => disconnect()}
-              style={{
-                padding: '8px 16px',
-                fontSize: '14px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+              className="disconnect-button"
             >
               Disconnect
             </button>
           </div>
-          <ReproduceWebAuthnSignatureIssue />
+          <PurchaseButton />
+          <hr />
+          <DelegatePurchaseButton />
         </div>
       )}
     </>

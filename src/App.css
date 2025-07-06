@@ -1,8 +1,129 @@
+/* Force light theme - prevent system colors */
+body {
+  background-color: #ffffff !important;
+  color: #213547 !important;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+html {
+  background-color: #ffffff !important;
+  color: #213547 !important;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff !important;
+  color: #213547 !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  #root {
+    padding: 1rem;
+  }
+}
+
+/* Page title styles */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  font-weight: 600;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Mobile responsive title */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Connect section styles */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #34495e;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+}
+
+/* Subtitle styles */
+p {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* Info section styles */
+.info-section {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px auto;
+  max-width: 600px;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.info-section h3 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  text-align: center;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 600;
+}
+
+.info-section p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.info-section ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.info-section li {
+  color: #555;
+  margin-bottom: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e9ecef;
+  font-size: 14px;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.info-section li:last-child {
+  border-bottom: none;
+}
+
+/* Mobile responsive info section */
+@media (max-width: 768px) {
+  .info-section {
+    padding: 20px;
+    margin: 20px 16px;
+    text-align: center;
+  }
+  
+  .info-section li {
+    text-align: left;
+  }
 }
 
 .logo {
@@ -35,6 +156,309 @@
 
 .card {
   padding: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Mobile responsive card */
+@media (max-width: 768px) {
+  .card {
+    padding: 1em;
+    gap: 16px;
+  }
+}
+
+/* Connection header styles */
+.connection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Mobile responsive connection header */
+@media (max-width: 768px) {
+  .connection-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+/* Connection info styles */
+.connection-info {
+  font-size: 16px;
+  font-weight: 500;
+  word-break: break-all;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Mobile responsive connection info */
+@media (max-width: 768px) {
+  .connection-info {
+    text-align: center;
+    font-size: 14px;
+  }
+}
+
+/* Button styles */
+.disconnect-button {
+  padding: 10px 16px;
+  font-size: 14px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 40px;
+  min-width: 100px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.disconnect-button:hover {
+  background-color: #c82333;
+}
+
+/* Mobile responsive disconnect button */
+@media (max-width: 768px) {
+  .disconnect-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+}
+
+/* Divider styles */
+hr {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+/* Component container styles */
+.component-container {
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Mobile responsive component container */
+@media (max-width: 768px) {
+  .component-container {
+    padding: 0;
+    max-width: 100%;
+  }
+}
+
+/* Button group styles */
+.button-group {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Primary button styles */
+.primary-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  min-height: 44px;
+  width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.primary-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.primary-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Mobile responsive primary button */
+@media (max-width: 768px) {
+  .primary-button {
+    width: 280px;
+    padding: 14px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+}
+
+/* Helper text styles */
+.helper-text {
+  color: #666;
+  margin-top: 10px;
+  font-size: 14px;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Mobile responsive helper text */
+@media (max-width: 768px) {
+  .helper-text {
+    text-align: center;
+    font-size: 16px;
+  }
+}
+
+/* Success message styles */
+.success-message {
+  margin-top: 16px;
+  padding: 12px 20px;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Mobile responsive success message */
+@media (max-width: 768px) {
+  .success-message {
+    font-size: 16px;
+    max-width: 280px;
+    margin-top: 20px;
+  }
+}
+
+/* Collapsible info styles */
+.collapsible-info {
+  margin-top: 20px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Info toggle button styles */
+.info-toggle-button {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+  font-weight: 500;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.info-toggle-button:hover {
+  color: #333;
+}
+
+.info-section.collapsed {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease-out;
+  margin-top: 0;
+  padding: 0 24px;
+}
+
+.info-section.expanded {
+  max-height: 1400px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease-out;
+  margin-top: 8px;
+  padding: 16px 24px;
+}
+
+/* Override existing info-section styles for the collapsible version */
+.collapsible-info .info-section {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.collapsible-info .info-section p {
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+  font-size: 13px;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+/* Mobile responsive collapsible info */
+@media (max-width: 768px) {
+  .collapsible-info {
+    margin-top: 24px;
+    max-width: 100%;
+    padding: 0 5px;
+  }
+  
+  .info-toggle-button {
+    font-size: 16px;
+    padding: 12px 0;
+  }
+  
+  .info-section.expanded {
+    padding: 16px 15px;
+    max-height: 1200px;
+  }
+  
+  .collapsible-info .info-section p {
+    font-size: 14px;
+  }
+  
+  /* Sequence diagram mobile responsiveness */
+  .collapsible-info .info-section div[style*="backgroundColor"] {
+    overflow-x: auto;
+    padding: 8px;
+    max-width: 100%;
+  }
+  
+  .collapsible-info .info-section svg {
+    max-width: 100%;
+    height: auto;
+    min-width: 700px;
+  }
 }
 
 .read-the-docs {
