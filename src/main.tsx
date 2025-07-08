@@ -1,10 +1,9 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { wagmiConfig } from './config'
-import './index.css'
 import App from './App.tsx'
+import { wagmiConfig } from './config.ts'
 
 const queryClient = new QueryClient()
 

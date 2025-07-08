@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
-import { ServerActions } from 'porto/viem'
-import { createClient, http, parseEther, hashTypedData } from 'viem'
-import { baseSepolia } from 'wagmi/chains'
+import { hashTypedData } from 'viem'
 import { readContract } from 'viem/actions';
 import { PORTO_ABI } from './abi';
 import { SequenceDiagram } from './SequenceDiagram';
+import JSONbig from 'json-bigint';
 
 export interface KeyData {
   expiry: number
@@ -14,166 +13,20 @@ export interface KeyData {
   publicKey: string
 }
 
-interface WalletProvider {
-  request: (args: { method: string; params: unknown[] }) => Promise<unknown>
+interface WeatherData {
+  price: string
+  weather: string
+  temperature: string
+  futureDate: string
 }
 
-export const PurchaseButton: React.FC = () => {
-  const { address, connector } = useAccount()
+export const PurchaseButton = () => {
+  const { address } = useAccount()
   const { data: walletClient } = useWalletClient();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [successData, setSuccessData] = useState<any>(null);
+  const [successData, setSuccessData] = useState<WeatherData | null>(null);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-
-  // const demonstrateIssue = async () => {
-  //   if (!walletClient || !address) {
-  //     console.log('❌ Wallet client or address not available');
-  //     return;
-  //   }
-  //   setIsProcessing(true);
-
-  //   try {
-  //     const client = createClient({
-  //       chain: baseSepolia,
-  //       transport: http('https://base-sepolia.rpc.ithaca.xyz'),
-  //     })
-
-  //     const superAdminKey = await readContract(client, {
-  //       address: address as `0x${string}`,
-  //       abi: PORTO_ABI,
-  //       functionName: 'keyAt',
-  //       args: [BigInt(0)],
-  //     })
-
-  //     console.log('Super admin key:', superAdminKey);
-
-  //     const eip712Domain = await readContract(client, {
-  //       address: address as `0x${string}`,
-  //       abi: PORTO_ABI,
-  //       functionName: 'eip712Domain',
-  //     })
-  //     const eip712DomainName = eip712Domain[1] as string;
-  //     const eip712DomainVersion = eip712Domain[2] as string;
-
-  //     const prepareCallsResponse = await ServerActions.prepareCalls(client, { 
-  //       account: address as `0x${string}`, 
-  //       calls: [{ 
-  //         to: address as `0x${string}`,
-  //         value: parseEther("0.00001"), 
-  //         data: '0x' as `0x${string}`,
-  //       }], 
-  //       key: {
-  //         publicKey: superAdminKey.publicKey,
-  //         type: "webauthn-p256",
-  //       }, 
-  //       feeToken: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2',
-  //     });
-
-  //     console.log('Server prepared calls response:', prepareCallsResponse);
-
-  //     // Also try wallet_prepareCalls for comparison
-  //     const walletPrepareResponse = await (walletClient as any).request({
-  //       method: 'wallet_prepareCalls',
-  //       params: [{
-  //         calls: [{
-  //           to: address as `0x${string}`,
-  //           value: `0x${parseEther("0.00001").toString(16)}`,
-  //           data: "0x"
-  //         }],
-  //         key: {
-  //           publicKey: superAdminKey.publicKey,
-  //           type: "webauthn-p256"
-  //         },
-  //         capabilities: {
-  //           feeToken: '0x29f45fc3ed1d0ffafb5e2af9cc6c3ab1555cd5a2'
-  //         }
-  //       }]
-  //     });
-
-  //     console.log('Wallet prepared calls response:', walletPrepareResponse);
-
-  //     // Extract nonce from server response
-  //     const nonce = prepareCallsResponse.context?.quote?.intent?.nonce;
-  //     if (!nonce) {
-  //       console.log('❌ No nonce found in prepareCalls response');
-  //       return;
-  //     }
-
-  //     // Build typed data structure for EIP-712 signing
-  //     const typedData = {
-  //       domain: {
-  //         chainId: baseSepolia.id,
-  //         name: eip712DomainName,
-  //         verifyingContract: address as `0x${string}`,
-  //         version: eip712DomainVersion,
-  //       },
-  //       message: {
-  //         multichain: false,
-  //         calls: [{
-  //           to: address as `0x${string}`,
-  //           value: `0x${parseEther("0.00001").toString(16)}`,
-  //           data: '0x' as `0x${string}`,
-  //         }],
-  //         nonce: `0x${nonce.toString(16)}`,
-  //       },
-  //       primaryType: 'Execute',
-  //       types: {
-  //         Call: [
-  //           { name: 'to', type: 'address' },
-  //           { name: 'value', type: 'uint256' },
-  //           { name: 'data', type: 'bytes' },
-  //         ],
-  //         Execute: [
-  //           { name: 'multichain', type: 'bool' },
-  //           { name: 'calls', type: 'Call[]' },
-  //           { name: 'nonce', type: 'uint256' },
-  //         ],
-  //       },
-  //     }
-
-  //     // Compute local EIP-712 hash
-  //     const localHash = hashTypedData(typedData as any);
-
-  //     console.log('=== HASH COMPARISON ===');
-  //     console.log('Local EIP-712 hash:', localHash);
-  //     console.log('Server digest:', prepareCallsResponse.digest);
-  //     console.log('Hashes match:', localHash === prepareCallsResponse.digest);
-
-  //     // Get provider and sign the typed data
-  //     const provider = await connector?.getProvider() as WalletProvider
-
-  //     const signature = await provider?.request({ 
-  //       method: 'eth_signTypedData_v4', 
-  //       params: [address as `0x${string}`, JSON.stringify(typedData)], 
-  //     }) as `0x${string}`
-
-  //     console.log('Generated signature:', signature);
-
-  //     // Verify signature using wallet method
-  //     const isValid = await provider?.request({
-  //       method: 'wallet_verifySignature',
-  //       params: [{
-  //         address: address as `0x${string}`,
-  //         signature: signature,
-  //         digest: localHash as `0x${string}`, 
-  //         chainId: `0x${baseSepolia.id.toString(16)}`,
-  //       }]
-  //     }) as {valid: boolean}
-
-  //     console.log('=== VERIFICATION RESULT ===');
-  //     if (isValid.valid) {
-  //       console.log('✅ Signature verification successful:', isValid);
-  //     } else {
-  //       console.log('❌ Signature verification failed:', isValid);
-  //     }
-
-  //   } catch (error) {
-  //     console.log(`❌ Error during process: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
 
   const handlePurchase = async () => {
     setIsProcessing(true);
@@ -181,21 +34,64 @@ export const PurchaseButton: React.FC = () => {
     setSuccessData(null);
 
     try {
-      if (false) {
-        const response = await fetch(`/api/weather`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data);
+      const step1 = await fetch(`/api/self/weather`, {
+        headers: {
+          'X-USER-ADDRESS': address as `0x${string}`
+        }
+      });
+      console.log(step1);
+      if (step1.ok) {
+        const data = await step1.json();
+        console.log(data);
+        setIsSuccess(true);
+        setSuccessData(data);
+      } else if (step1.status === 402) {
+        if (!walletClient) throw new Error('Wallet client not available');
+
+        const superAdminKey = await readContract(walletClient, {
+          address: address as `0x${string}`,
+          abi: PORTO_ABI,
+          functionName: 'keyAt',
+          args: [BigInt(0)],
+        })
+
+        console.log('Super admin key:', superAdminKey);
+
+        const data = await step1.json();
+        const prepareCalls = JSONbig.parse(data.prepareCalls);
+        const typedData = prepareCalls.typedData;
+        const typedDataHash = hashTypedData(typedData);
+
+        const recomputedTypedDataHash = hashTypedData(typedData);
+        console.log('Recomputed typed data hash:', recomputedTypedDataHash);
+
+        if (recomputedTypedDataHash !== typedDataHash) {
+          throw new Error('Typed data hash mismatch');
+        }
+
+        const signature = await walletClient.signTypedData({
+          account: address as `0x${string}`,
+          ...typedData,
+        }) as `0x${string}`;
+        console.log('Signature:', signature);
+
+        const step2 = await fetch(`/api/self/weather`, {
+          headers: {
+            'X-PAYMENT': signature,
+            'X-USER-ADDRESS': address as `0x${string}`
+          }
+        });
+        console.log(step2);
+        const step2Data = await step2.json();
+
+        if (step2.ok) {
           setIsSuccess(true);
-          setSuccessData(data);
-        } else if (response.status === 402) {
-          console.error('Failed to fetch premium data');
+          setSuccessData(step2Data);
         } else {
-          throw new Error('Failed to fetch premium data: Status ' + response.status + ' ' + response.statusText);
+          throw new Error('Failed to fetch premium data: Status ' + step2.status + ' ' + step2.statusText);
         }
       } else {
-        // TODO: Server does not yet support this.
-        console.log('Server does not yet support this.');
+        throw new Error('Failed to fetch premium data: Status ' + step1.status + ' ' + step1.statusText);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -212,12 +108,12 @@ export const PurchaseButton: React.FC = () => {
           disabled={isProcessing || !address}
           className="primary-button"
         >
-          {isProcessing ? 'Processing...' : 'Purchase'}
+          {isProcessing ? 'Processing...' : 'Pay'}
         </button>
 
         {isSuccess && (
           <div className="success-message">
-            ✅ Success! Purchase completed successfully.
+            ✅ {successData?.price} purchase complete
             {successData && (
               <div style={{ marginTop: '12px', fontSize: '14px', lineHeight: '1.4' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Weather Forecast:</div>
@@ -240,12 +136,13 @@ export const PurchaseButton: React.FC = () => {
             onClick={() => setIsInfoExpanded(!isInfoExpanded)}
             className="info-toggle-button"
           >
-            {isInfoExpanded ? '▼' : '▶'} Details
+            {isInfoExpanded ? '▼' : '▶'} Explanation
           </button>
 
           <div className={`info-section ${isInfoExpanded ? 'expanded' : 'collapsed'}`}>
             <p>
-              Pay for paywalled content by signing a digest that authorizes a call bundle containing the payment transaction. This signature permits the execution of the payment on your behalf.
+              User/Agent can pay for paywalled content by signing an intent to pay the merchant X amount for the content.
+              The merchant sends the final payment transaction onchain before returning the paywalled content.
             </p>
             <PurchaseSequenceDiagram />
           </div>
@@ -256,22 +153,27 @@ export const PurchaseButton: React.FC = () => {
 };
 
 // Purchase-specific sequence diagram
-const PurchaseSequenceDiagram: React.FC = () => {
+const PurchaseSequenceDiagram = () => {
   const diagramDefinition = `
     sequenceDiagram
       participant User
       participant Server
       
-      User->>Server: Request Payment Authorization
-      Server->>User: Present Signature Request
-      User->>Server: Sign Payment Digest
-      Server->>User: Execute Payment
-      Server->>User: Payment Confirmation
+      User->>Server: Request Paywalled Content (1 click)
+      Server->>Server: Checks for non-existent X-PAYMENT header.
+      Server->>Server: Compute intent and quote for user to sign.
+      Server->>User: Returns: Status Code: 402, Intent and Quote
+      User->>User: Sign Intent (2 clicks)
+      User->>Server: Retries retrieving paywalled content (X-PAYMENT set to signed intent signature.)
+      Server->>Server: Verify signature matches expected intent and quote.
+      Server->>Server: Execute payment.
+      Server->>User: Returns: Status Code: 200, Paywalled Content
+      User->>User: Displays Content
   `;
 
   return (
     <SequenceDiagram
-      title="Payment Authorization Sequence"
+      title="Self Authorize Payment"
       diagramDefinition={diagramDefinition}
       idPrefix="payment"
     />

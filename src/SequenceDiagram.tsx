@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
 
 interface SequenceDiagramProps {
@@ -7,7 +7,7 @@ interface SequenceDiagramProps {
   idPrefix?: string;
 }
 
-export const SequenceDiagram: React.FC<SequenceDiagramProps> = ({ title, diagramDefinition, idPrefix = 'diagram' }) => {
+export const SequenceDiagram = ({ title, diagramDefinition, idPrefix = 'diagram' }: SequenceDiagramProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,17 +46,18 @@ export const SequenceDiagram: React.FC<SequenceDiagramProps> = ({ title, diagram
     <div 
       style={{
         margin: '16px auto',
-        padding: '16px',
-        backgroundColor: '#e8f4f8',
-        borderRadius: '8px',
-        border: '1px solid #bee5eb',
+        padding: '20px',
+        background: '#f5f5f0',
+        borderRadius: '12px',
+        border: '1px solid #e0e0e0',
         textAlign: 'center',
         width: '100%',
         maxWidth: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}
     >
-      <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '14px' }}>
+      <div style={{ fontWeight: 'bold', marginBottom: '12px', fontSize: '14px', color: '#2c3e50' }}>
         {title}
       </div>
       <div 

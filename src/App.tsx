@@ -1,68 +1,115 @@
 import './App.css'
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { PurchaseButton } from './purchase-button'
-import { DelegatePurchaseButton } from './purchase-button-delegate'
+import { DelegatePurchaseButton, RevokePermissionsButton } from './purchase-button-delegate'
+import { Hooks } from 'porto/wagmi'
+import { useAccount, useConnectors, useDisconnect } from 'wagmi'
+import { useState, useEffect } from 'react'
+import { AccountDisplay } from './AccountDisplay'
 
 function App() {
-  const { address, isConnected } = useAccount()
-  const { connect, connectors, isPending } = useConnect()
-  const { disconnect } = useDisconnect()
+  const MERCHANT_ADDRESS = '0x64574add22aa10ffff44f096a388bf1718896b8b';
+  const disconnect = useDisconnect()
+  const connect = Hooks.useConnect();
+  const { address, isConnected } = useAccount();
+  const [connector] = useConnectors()
+  const [me, setMe] = useState<{ exp: string } | null>(null)
 
-  const handleConnect = () => {
-    const portoConnector = connectors.find(connector => connector.name === 'Porto')
-    if (portoConnector) {
-      connect({ connector: portoConnector })
-    }
+  const handleConnect = async () => {
+    connect.mutate({
+      connector,
+      signInWithEthereum: {
+        authUrl: '/siwe',
+      },
+    })
   }
+
+  useEffect(() => {
+    if (isConnected) {
+      fetch('/api/me', { credentials: 'include' })
+        .then((res) => res.text())
+        .then((data) => {
+          const parsedData = JSON.parse(data)
+          setMe(parsedData.user)
+        })
+        .catch((error) => {
+          console.error('Error fetching user data:', error)
+          setMe(null)
+        })
+    } else {
+      setMe(null)
+    }
+  }, [isConnected])
 
   return (
     <>
-      <h1>⛅ Weather Foreseer 🌧️</h1>
-      <p><i>Get next year's weather forecast today.</i></p>
+      {/* Brand Logo in top left */}
+      <div className="brand-container">
+        <div className="brand">
+          <span className="emoji-logo">⛅</span>
+          <h1 className="brand-title">Weather Foreseer</h1>
+        </div>
+      </div>
 
-      {!isConnected ? (
-        <div className="card">
-          <h2>Connect Your Wallet</h2>
-          <p>Please connect your Porto wallet to test the WebAuthn signature issue.</p>
-          <button 
-            onClick={handleConnect}
-            disabled={isPending}
-            style={{
-              padding: '10px 20px',
-              fontSize: '14px',
-              backgroundColor: isPending ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: isPending ? 'not-allowed' : 'pointer',
-              marginTop: '16px',
-              minHeight: '40px',
-              fontWeight: '500',
-              transition: 'background-color 0.2s',
-              fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif'
+      {/* Power button in top right when connected */}
+      {isConnected && (
+        <div className="power-button-container">
+          <button
+            onClick={() => {
+              disconnect.disconnect();
             }}
+            className="power-button connected"
+            title="Disconnect"
           >
-            {isPending ? 'Connecting...' : 'Connect Porto Wallet'}
+            ⏻
           </button>
         </div>
-      ) : (
-        <div className="card">
-          <div className="connection-header">
-            <div className="connection-info">
-              <strong>Connected:</strong> <a href={`https://sepolia.basescan.org/address/${address}`} target="_blank" rel="noopener noreferrer">{address?.slice(0, 6)}...{address?.slice(-4)}</a>
-            </div>
-            <button 
-              onClick={() => disconnect()}
-              className="disconnect-button"
+      )}
+
+      <div className="main-content">
+        <div className="header">
+          <p><i>Get next year's weather forecast today!</i></p>
+        </div>
+
+        {!isConnected ? (
+          <div className="card">
+            <button
+              onClick={handleConnect}
+              disabled={connect.isPending}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                backgroundColor: connect.isPending ? '#ccc' : '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: connect.isPending ? 'not-allowed' : 'pointer',
+                marginTop: '16px',
+                minHeight: '40px',
+                fontWeight: '500',
+                transition: 'background-color 0.2s',
+                fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif'
+              }}
             >
-              Disconnect
+              {connect.isPending ? 'Connecting...' : 'Sign in With Ethereum'}
             </button>
           </div>
-          <PurchaseButton />
-          <hr />
-          <DelegatePurchaseButton />
-        </div>
-      )}
+        ) : (
+          <div>
+            <div className="profile">
+              <AccountDisplay
+                userAddress={address!}
+                serverAddress={MERCHANT_ADDRESS}
+                sessionExpiry={me?.exp ? new Date(Number(me.exp) * 1000).toLocaleDateString() : 'Unknown'}
+              />
+            </div>
+            <PurchaseButton />
+            <hr />
+            <DelegatePurchaseButton />
+            <RevokePermissionsButton />
+          </div >
+        )
+        }
+      </div>
     </>
   )
 }
