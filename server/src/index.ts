@@ -293,7 +293,13 @@ const selfPaymentPrepareCalls = async (client: any, amount: bigint, superAdminKe
 // This is for development purposes only.
 // I had to add both the dialog domain and the local domain to the origin list.
 app.use('/*', cors({
-  origin: ['https://localhost:5173', 'https://stg.id.porto.sh', 'http://localhost:5173'],
+  origin: [
+    'http://localhost:5173',
+    'https://localhost:5173',
+    'https://stg.id.porto.sh',
+    'https://porto.blainemalone.com',
+    'http://porto.blainemalone.com'
+  ],
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-PAYMENT']

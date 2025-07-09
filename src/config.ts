@@ -6,7 +6,7 @@ import { Mode } from 'porto'
 export const wagmiConfig = createConfig({
   chains: [baseSepolia],
   multiInjectedProviderDiscovery: false,
-  connectors: [porto({ merchantRpcUrl: "http://localhost:8787/rpc", mode: Mode.dialog(), authUrl: "http://localhost:8787" })],
+  connectors: [porto({ merchantRpcUrl: "https://api.porto.blainemalone.com/rpc", mode: Mode.dialog(), authUrl: "https://api.porto.blainemalone.com" })],
   transports: {
     [baseSepolia.id]: http("https://base-sepolia.rpc.ithaca.xyz"),
   },

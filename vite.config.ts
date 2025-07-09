@@ -12,7 +12,7 @@ export default defineConfig({
     host: true, // This allows access from other devices on your network
     proxy: {
       '/api': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'http://localhost:8787',
+        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
         changeOrigin: true,
         secure: false,
         configure: (proxy) => {
@@ -22,17 +22,17 @@ export default defineConfig({
         }
       },
       '/siwe': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'http://localhost:8787',
+        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
         changeOrigin: true,
         secure: false,
       },
       '/siwe/nonce': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'http://localhost:8787',
+        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
         changeOrigin: true,
         secure: false,
       },
       '/logout': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'http://localhost:8787',
+        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
         changeOrigin: true,
         secure: false,
       }
