@@ -20,6 +20,8 @@ interface WeatherData {
   futureDate: string
 }
 
+const baseUrl = 'https://api.porto.blainemalone.com';
+
 export const PurchaseButton = () => {
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient();
@@ -34,7 +36,7 @@ export const PurchaseButton = () => {
     setSuccessData(null);
 
     try {
-      const step1 = await fetch(`/api/self/weather`, {
+      const step1 = await fetch(`${baseUrl}/api/self/weather`, {
         headers: {
           'X-USER-ADDRESS': address as `0x${string}`
         }
@@ -75,7 +77,7 @@ export const PurchaseButton = () => {
         }) as `0x${string}`;
         console.log('Signature:', signature);
 
-        const step2 = await fetch(`/api/self/weather`, {
+        const step2 = await fetch(`${baseUrl}/api/self/weather`, {
           headers: {
             'X-PAYMENT': signature,
             'X-USER-ADDRESS': address as `0x${string}`

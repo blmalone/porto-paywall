@@ -48,6 +48,8 @@ const DelegateSequenceDiagram = () => {
   );
 };
 
+const baseUrl = 'https://api.porto.blainemalone.com';
+
 export const DelegatePurchaseButton = () => {
   const { address } = useAccount()
   const { data: walletClient } = useWalletClient();
@@ -62,7 +64,7 @@ export const DelegatePurchaseButton = () => {
     setSuccessData(null);
 
     try {
-      const step1 = await fetch(`/api/delegated/weather`, {
+      const step1 = await fetch(`${baseUrl}/api/delegated/weather`, {
         headers: {}
       });
       console.log(step1);
@@ -119,7 +121,7 @@ export const DelegatePurchaseButton = () => {
           throw new Error('Failed to send calls: Status ' + status.statusCode);
         }
 
-        const step2 = await fetch(`/api/delegated/weather`, {
+        const step2 = await fetch(`${baseUrl}/api/delegated/weather`, {
           headers: {
             'X-PAYMENT': "Cookie proves we are who we say we are."
           }
