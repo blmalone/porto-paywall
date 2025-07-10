@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     host: true, // This allows access from other devices on your network
     proxy: {
-      '/api': {
+      '^/(api|siwe|logout)': {
         target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
         changeOrigin: true,
         secure: false,
@@ -20,22 +20,8 @@ export default defineConfig({
             console.log('Proxying request:', req.method, req.url)
           })
         }
-      },
-      '/siwe': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/siwe/nonce': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/logout': {
-        target: process.env.PRODUCTION_VITE_API_URL || 'https://api.porto.blainemalone.com',
-        changeOrigin: true,
-        secure: false,
       }
-    },
+    }
+    
   }
 })

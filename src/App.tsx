@@ -6,8 +6,6 @@ import { useAccount, useConnectors, useDisconnect } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { AccountDisplay } from './AccountDisplay'
 
-const baseUrl = 'https://api.porto.blainemalone.com';
-
 function App() {
   const MERCHANT_ADDRESS = '0x64574add22aa10ffff44f096a388bf1718896b8b';
   const disconnect = useDisconnect()
@@ -27,7 +25,7 @@ function App() {
 
   useEffect(() => {
     if (isConnected) {
-      fetch(`${baseUrl}/api/me`, { credentials: 'include' })
+      fetch(`/api/me`, { credentials: 'include' })
         .then((res) => res.text())
         .then((data) => {
           const parsedData = JSON.parse(data)
