@@ -3,6 +3,7 @@ import { useAccount, useWalletClient } from 'wagmi';
 import { waitForCallsStatus } from 'viem/actions';
 import { WalletActions } from 'porto/viem'
 import { SequenceDiagram } from './SequenceDiagram';
+import { SERVER_URL } from './constants'
 
 interface WeatherData {
   price?: string
@@ -62,7 +63,7 @@ export const DelegatePurchaseButton = () => {
     setSuccessData(null);
 
     try {
-      const step1 = await fetch(`/api/delegated/weather`, {
+      const step1 = await fetch(`${SERVER_URL}/api/delegated/weather`, {
         headers: {}
       });
       console.log(step1);
@@ -119,7 +120,7 @@ export const DelegatePurchaseButton = () => {
           throw new Error('Failed to send calls: Status ' + status.statusCode);
         }
 
-        const step2 = await fetch(`/api/delegated/weather`, {
+        const step2 = await fetch(`${SERVER_URL}/api/delegated/weather`, {
           headers: {
             'X-PAYMENT': "Cookie proves we are who we say we are."
           }

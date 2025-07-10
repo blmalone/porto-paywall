@@ -5,6 +5,7 @@ import { readContract } from 'viem/actions';
 import { PORTO_ABI } from './abi';
 import { SequenceDiagram } from './SequenceDiagram';
 import JSONbig from 'json-bigint';
+import { SERVER_URL } from './constants'
 
 export interface KeyData {
   expiry: number
@@ -34,7 +35,7 @@ export const PurchaseButton = () => {
     setSuccessData(null);
 
     try {
-      const step1 = await fetch(`/api/self/weather`, {
+      const step1 = await fetch(`${SERVER_URL}/api/self/weather`, {
         headers: {
           'X-USER-ADDRESS': address as `0x${string}`
         }
@@ -75,7 +76,7 @@ export const PurchaseButton = () => {
         }) as `0x${string}`;
         console.log('Signature:', signature);
 
-        const step2 = await fetch(`/api/self/weather`, {
+        const step2 = await fetch(`${SERVER_URL}/api/self/weather`, {
           headers: {
             'X-PAYMENT': signature,
             'X-USER-ADDRESS': address as `0x${string}`

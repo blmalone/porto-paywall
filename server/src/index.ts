@@ -31,23 +31,22 @@ export const client = createClient({
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.all('/rpc', (c) => {
-  console.log("Handling /rpc request");
-  console.log("Merchant Address:", c.env.MERCHANT_ADDRESS);
-
-  return MerchantRpc.requestHandler({
-    address: c.env.MERCHANT_ADDRESS as `0x${string}`,
-    key: c.env.MERCHANT_PRIVATE_KEY as `0x${string}`,
-    chains: [baseSepolia],
-    transports: {
-      [baseSepolia.id]: http('https://base-sepolia.rpc.ithaca.xyz'),
-    },
-    sponsor(request) {
-      console.log("Sponsor request:", request);
-      return true;// request.calls.every((call) => call.to === target)
-    },
-  })(c.req.raw)
-});
+app.use('/*', cors({
+  origin: (origin) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://localhost:5173',
+      'https://stg.id.porto.sh',
+      'https://porto.blainemalone.com',
+      'http://porto.blainemalone.com'
+    ]
+    console.log('CORS origin check:', origin)
+    return allowedOrigins.includes(origin ?? '') ? origin : ''
+  },
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-PAYMENT']
+}));
 
 const requireSelfPayment = (amount: string) => {
   return async (c: Context<{ Bindings: Env }>, next: Next) => {
@@ -290,20 +289,49 @@ const selfPaymentPrepareCalls = async (client: any, amount: bigint, superAdminKe
   return { prepareCallsResponse, digest: hashedTypedData };
 }
 
-// This is for development purposes only.
-// I had to add both the dialog domain and the local domain to the origin list.
-app.use('/*', cors({
-  origin: [
-    'http://localhost:5173',
-    'https://localhost:5173',
-    'https://stg.id.porto.sh',
-    'https://porto.blainemalone.com',
-    'http://porto.blainemalone.com'
-  ],
-  credentials: true,
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-PAYMENT']
-}))
+const verifyAuth = async (c: Context<{ Bindings: Env }>): Promise<JWTPayload> => {
+  const authCookie = getCookie(c, 'auth')
+  if (!authCookie) {
+    throw new Error('No auth cookie found')
+  }
+  return await jwt.verify(authCookie, c.env.JWT_SECRET)
+}
+
+const getWeather = async (c: Context<{ Bindings: Env }>, price: number) => {
+  const weatherConditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'foggy', 'windy', 'stormy', 'partly cloudy'];
+  const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+  const randomTemperature = Math.floor(Math.random() * 80) + 20; // Random temp between 20-99°F
+
+  return c.json({
+    weather: randomWeather,
+    temperature: randomTemperature,
+    futureDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }),
+    price: price,
+  });
+}
+
+app.all('/rpc', (c) => {
+  console.log("Handling /rpc request");
+  console.log("Merchant Address:", c.env.MERCHANT_ADDRESS);
+
+  return MerchantRpc.requestHandler({
+    address: c.env.MERCHANT_ADDRESS as `0x${string}`,
+    key: c.env.MERCHANT_PRIVATE_KEY as `0x${string}`,
+    chains: [baseSepolia],
+    transports: {
+      [baseSepolia.id]: http('https://base-sepolia.rpc.ithaca.xyz'),
+    },
+    sponsor(request) {
+      console.log("Sponsor request:", request);
+      return true;
+    },
+  })(c.req.raw)
+});
 
 app.get('/siwe/nonce', async (c) => {
   // Generate a nonce to be used in the SIWE message.
@@ -361,15 +389,7 @@ app.post(
     deleteCookie(c, 'auth')
     return c.json({ success: true })
   },
-)
-
-const verifyAuth = async (c: Context<{ Bindings: Env }>): Promise<JWTPayload> => {
-  const authCookie = getCookie(c, 'auth')
-  if (!authCookie) {
-    throw new Error('No auth cookie found')
-  }
-  return await jwt.verify(authCookie, c.env.JWT_SECRET)
-}
+);
 
 app.get('/api/me', async (c) => {
   try {
@@ -378,25 +398,7 @@ app.get('/api/me', async (c) => {
   } catch (error) {
     return c.json({ error: 'Authentication failed' }, 401)
   }
-})
-
-const getWeather = async (c: Context<{ Bindings: Env }>, price: number) => {
-  const weatherConditions = ['sunny', 'cloudy', 'rainy', 'snowy', 'foggy', 'windy', 'stormy', 'partly cloudy'];
-  const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
-  const randomTemperature = Math.floor(Math.random() * 80) + 20; // Random temp between 20-99°F
-
-  return c.json({
-    weather: randomWeather,
-    temperature: randomTemperature,
-    futureDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }),
-    price: price,
-  });
-}
+});
 
 app.get('/api/delegated/weather',
   requireDelegatedPayment('0.5'),

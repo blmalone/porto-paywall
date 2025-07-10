@@ -5,6 +5,7 @@ import { Hooks } from 'porto/wagmi'
 import { useAccount, useConnectors, useDisconnect } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { AccountDisplay } from './AccountDisplay'
+import { SERVER_URL } from './constants'
 
 function App() {
   const MERCHANT_ADDRESS = '0x64574add22aa10ffff44f096a388bf1718896b8b';
@@ -12,20 +13,21 @@ function App() {
   const connect = Hooks.useConnect();
   const { address, isConnected } = useAccount();
   const [connector] = useConnectors()
-  const [me, setMe] = useState<{ exp: string } | null>(null)
+  const [me, setMe] = useState<{ exp: string } | null>(null);
+  SERVER_URL ? console.log("Communicating with server at: ", SERVER_URL) : console.log("Dev mode. Using localhost.");
 
   const handleConnect = async () => {
     connect.mutate({
       connector,
       signInWithEthereum: {
-        authUrl: '/siwe',
+        authUrl: `${SERVER_URL}/siwe`,
       },
     })
   }
 
   useEffect(() => {
     if (isConnected) {
-      fetch(`/api/me`, { credentials: 'include' })
+      fetch(`${SERVER_URL}/api/me`, { credentials: 'include' })
         .then((res) => res.text())
         .then((data) => {
           const parsedData = JSON.parse(data)
