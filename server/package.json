@@ -10,7 +10,7 @@
     "@types/json-bigint": "^1.0.4",
     "hono": "^4",
     "json-bigint": "^1.0.0",
-    "porto": "latest",
+    "porto": "0.0.49",
     "viem": "^2",
     "wagmi": "^2",
     "x402": "^0.4.1"

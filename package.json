@@ -18,7 +18,7 @@
     "@types/json-bigint": "^1.0.4",
     "json-bigint": "^1.0.0",
     "mermaid": "^11.8.0",
-    "porto": "latest",
+    "porto": "0.0.49",
     "react": "^19",
     "react-dom": "^19",
     "viem": "^2",
