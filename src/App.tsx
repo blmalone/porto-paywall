@@ -21,6 +21,7 @@ function App() {
       connector,
       signInWithEthereum: {
         authUrl: `${SERVER_URL}/siwe`,
+        uri: SERVER_URL != '' ? SERVER_URL : undefined
       },
     })
   }

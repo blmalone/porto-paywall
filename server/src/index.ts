@@ -41,7 +41,10 @@ app.use('/*', cors({
       'http://porto.blainemalone.com'
     ]
     console.log('CORS origin check:', origin)
-    return allowedOrigins.includes(origin ?? '') ? origin : ''
+    if (!origin || !allowedOrigins.includes(origin)) {
+      return null;
+    }
+    return origin;
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -372,13 +375,14 @@ app.post('/siwe', async (c) => {
 
   // Issue a JWT token for the user in a HTTP-only cookie.
   const token = await jwt.sign({ exp, sub: address }, c.env.JWT_SECRET)
+
   setCookie(c, 'auth', token, {
     httpOnly: true,
-    maxAge,
-    path: '/',
-    sameSite: 'lax',
     secure: true,
-  })
+    sameSite: 'none', // MUST be 'none' to work in cross-site iframes
+    path: '/',
+    maxAge,
+  });
 
   return c.json({ success: true })
 })
