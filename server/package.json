@@ -7,9 +7,8 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4",
-    "@types/json-bigint": "^1.0.4",
     "hono": "^4",
-    "json-bigint": "^1.0.0",
+    "ox": "^0.8.4",
     "porto": "0.0.49",
     "viem": "^2",
     "wagmi": "^2",

@@ -64,7 +64,7 @@ export const DelegatePurchaseButton = () => {
 
     try {
       const step1 = await fetch(`${SERVER_URL}/api/delegated/weather`, {
-        headers: {}
+        credentials: 'include'
       });
       console.log(step1);
       if (step1.ok) {
@@ -123,7 +123,8 @@ export const DelegatePurchaseButton = () => {
         const step2 = await fetch(`${SERVER_URL}/api/delegated/weather`, {
           headers: {
             'X-PAYMENT': "Cookie proves we are who we say we are."
-          }
+          },
+          credentials: 'include'
         });
         console.log(step2);
         const step2Data = await step2.json();

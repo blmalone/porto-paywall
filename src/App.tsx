@@ -14,7 +14,6 @@ function App() {
   const { address, isConnected } = useAccount();
   const [connector] = useConnectors()
   const [me, setMe] = useState<{ exp: string } | null>(null);
-  SERVER_URL ? console.log("Communicating with server at: ", SERVER_URL) : console.log("Dev mode. Using localhost.");
 
   const handleConnect = async () => {
     connect.mutate({

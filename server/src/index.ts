@@ -21,7 +21,7 @@ import { deleteCookie, setCookie, getCookie } from 'hono/cookie'
 import * as jwt from 'hono/jwt'
 import { JWTPayload } from 'hono/utils/jwt/types'
 import { PORTO_ABI } from './abi'
-import JSONbig from 'json-bigint';
+import { Json } from 'ox'
 
 // Instantiate a Viem Client with Porto-compatible Chain.
 export const client = createClient({
@@ -48,7 +48,7 @@ app.use('/*', cors({
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-PAYMENT']
+  allowHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-PAYMENT', 'X-USER-ADDRESS']
 }));
 
 const requireSelfPayment = (amount: string) => {
@@ -93,7 +93,7 @@ const requireSelfPayment = (amount: string) => {
       const { prepareCallsResponse, digest } = await selfPaymentPrepareCalls(client, parseEther(amount), superAdminKey, userAddress, c.env.MERCHANT_ADDRESS);
       console.log("prepareCallsResponse", prepareCallsResponse);
 
-      const stringifiedPrepareCalls = JSONbig.stringify(prepareCallsResponse);
+      const stringifiedPrepareCalls = Json.stringify(prepareCallsResponse);
       await c.env.PREPARE_CALLS_STORE.put(userAddress, stringifiedPrepareCalls, { expirationTtl: 600 })
 
       return c.json({
@@ -110,7 +110,8 @@ const requireSelfPayment = (amount: string) => {
     }
 
     console.log("userAddress", userAddress);
-    const parsedPrepareCalls = JSONbig.parse(await c.env.PREPARE_CALLS_STORE.get(userAddress) || null);
+    const parsedPrepareCalls = Json.parse(await c.env.PREPARE_CALLS_STORE.get(userAddress) || null);
+    console.log("parsedPrepareCalls we got here!!!", parsedPrepareCalls);
 
     if (!parsedPrepareCalls) {
       return c.json({ error: 'Server unaware of payment. Please try again.' }, 401);
@@ -118,6 +119,7 @@ const requireSelfPayment = (amount: string) => {
 
     const typedData = parsedPrepareCalls.typedData;
     const typedDataHash = hashTypedData(typedData);
+    console.log("typedDataHash we got here!!!", typedDataHash);
 
     const { valid } = await ServerActions.verifySignature(client, {
       address: userAddress,
@@ -129,11 +131,13 @@ const requireSelfPayment = (amount: string) => {
       return c.json({ error: 'Invalid signature' }, 401);
     }
 
+    console.log("parsedPrepareCalls we got here!!!", parsedPrepareCalls);
     const response = await ServerActions.sendPreparedCalls(client, {
       ...parsedPrepareCalls,
       signature,
       chain: baseSepolia,
     })
+    console.log("response we got here!!!", response);
 
     const status = await waitForCallsStatus(client, {
       id: response.id,
@@ -397,9 +401,9 @@ app.get('/api/me', async (c) => {
 });
 
 app.get('/api/delegated/weather',
-  requireDelegatedPayment('0.5'),
+  requireDelegatedPayment('2'),
   async (c) => {
-    return getWeather(c, 0.5);
+    return getWeather(c, 2);
   });
 
 app.get('/api/self/weather',
