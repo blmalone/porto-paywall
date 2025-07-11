@@ -1,47 +1,103 @@
-```txt
-pnpm install
-pnpm run dev
+# Porto Payment Server
+
+A Hono-based server demonstrating two payment patterns using the Porto protocol for accessing paywalled content.
+
+## Overview
+
+This server implements a paywall-as-a-service model where users can purchase access to premium content using two payment methods:
+
+1. **Self-Payment**: Users sign their own payment transactions
+2. **Delegated Payment**: Server executes payments on behalf of users with granted permissions
+
+## Architecture
+
+```
+Frontend (React) ←→ Server (Hono) ←→ Porto Protocol ←→ Base Sepolia
 ```
 
-```txt
-pnpm run deploy
-```
+The server validates payment signatures, executes transactions via Porto protocol, manages user sessions, and serves protected content after payment verification.
 
-### Notes
-
-My merchant account: [0x1e2685b3ac09a4ef4e732a9b84d69eaf4d2f6de1](https://sepolia.basescan.org/address/0x1e2685b3ac09a4ef4e732a9b84d69eaf4d2f6de1)
-
-Run `pnpx porto onboard -a` to create a merchant account. I got stuck on this part for way longer than I should have. I finally read this [guide](https://porto.sh/sdk/guides/sponsoring) and it worked. I took the address and private key generated from that command and put them in the `.dev.vars` file.
-
-User sends a request from the Porto SDK in the browser to `wallet_prepareCalls`. This gets routed to the merchantRpcUrl first. The merchantRpcUrl decides if it wants to sponsor the request. If it does, it will forward the request to Porto's public RPC server to get a fee quote. After receiving the response from Porto's RPC server, the merchant server signs the fee payment using its private key and includes this signature in the response as feeSignature.
-
-The merchant server only handles wallet_prepareCalls requests.
-
-![Fee Payer](./images/merchant-fee-payer.png)
-
-The command `pnpx porto onboard -a` creates a new Porto account with an additional admin key for server access.
-
-### More Notes
-
-Making key hash from address:
-```bash
-# 2 is the type of the key, in this case secp256k1.
-➜ keccak256(abi.encode(2, keccak256(abi.encode(0x23016fdcc2443ee4576c59809266545b36b52d39))))
-Type: bytes32
-└ Data: 0xd85d391c3f57a9ede51f682cb1e9795555f6b1bdc6f30ed06828126f021d5983
-```
+## Environment Variables
 
 ```bash
-# This address was given to us from running `pnpx porto onboard -a`. It's not actually the address that gets calculated from the merchants private key.
-➜ keccak256(abi.encode(2, keccak256(abi.encode(0x64574add22aa10ffff44f096a388bf1718896b8b))))
-Type: bytes32
-└ Data: 0xc6faf5c5298cd0a4e450c568592a7701c5c1c0c9ee74ef8c68b159ca0dc37529
+# Required
+MERCHANT_ADDRESS=0x...           # Your merchant wallet address
+MERCHANT_PRIVATE_KEY=0x...       # Your merchant private key
+JWT_SECRET=your-secret-here      # JWT signing secret
+
+# Cloudflare KV Namespaces
+NONCE_STORE=...                  # For SIWE nonce storage
+PREPARE_CALLS_STORE=...          # For payment preparation data
 ```
 
-## KV Namespace
+## Deployment
 
-Add a new KV namespace:
+### Cloudflare Workers
+
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+2. Configure Wrangler:
+   ```bash
+   pnpm wrangler login
+   ```
+
+3. Create KV namespaces:
+   ```bash
+   pnpm wrangler kv:namespace create NONCE_STORE
+   pnpm wrangler kv:namespace create PREPARE_CALLS_STORE
+   ```
+
+4. Set secrets:
+   ```bash
+   pnpm wrangler secret put MERCHANT_PRIVATE_KEY
+   pnpm wrangler secret put JWT_SECRET
+   pnpm wrangler secret put MERCHANT_ADDRESS
+   ```
+
+5. Deploy:
+   ```bash
+   pnpm wrangler deploy
+   ```
+
+### Local Development
+
 ```bash
-# Example:
-npx wrangler kv namespace create "NONCE_STORE" --preview
+pnpm dev
 ```
+
+## API Endpoints
+
+### Authentication
+- `GET /siwe/nonce` - Generate SIWE nonce
+- `POST /siwe` - Verify SIWE signature and create session
+- `POST /logout` - Clear authentication session
+- `GET /api/me` - Get current user info
+
+### Protected Content
+- `GET /api/self/weather` - Weather data via self-payment
+- `GET /api/delegated/weather` - Weather data via delegated payment
+
+### Utilities
+- `ALL /rpc` - Porto merchant RPC endpoint
+
+## Frontend Integration
+
+This server works with a React frontend using wagmi for wallet connections, Porto wallet for advanced payment features, and SIWE for authentication.
+
+The frontend should be configured to point to your deployed server URL and handle the two payment flows.
+
+## Payment Flow
+
+1. Frontend requests protected content
+2. Server returns 402 with payment requirements
+3. User authorizes payment (self or delegated)
+4. Server validates payment and returns content
+
+## Notes
+
+- Uses Base Sepolia testnet
+- Integrates with Porto protocol for wallet operations
+- Implements X402 payment standard patterns

@@ -1,19 +1,27 @@
-import './App.css'
-import { PurchaseButton } from './purchase-button'
-import { DelegatePurchaseButton, RevokePermissionsButton } from './purchase-button-delegate'
-import { Hooks } from 'porto/wagmi'
-import { useAccount, useConnectors, useDisconnect } from 'wagmi'
-import { useState, useEffect } from 'react'
-import { AccountDisplay } from './AccountDisplay'
-import { SERVER_URL } from './constants'
+import './App.css';
+import { PurchaseButtonSelf } from './PurchaseButtonSelf';
+import { PurchaseButtonDelegate, RevokePermissionsButton } from './PurchaseButtonDelegate';
+import { Hooks } from 'porto/wagmi';
+import { useAccount, useConnectors, useDisconnect } from 'wagmi';
+import { useState, useEffect } from 'react';
+import { AccountDisplay } from './AccountDisplay';
+import { SERVER_URL } from './constants';
 
+interface UserSession {
+  exp: string;
+}
+
+/**
+ * Main application component that handles user authentication and displays payment options
+ */
 function App() {
   const MERCHANT_ADDRESS = '0x64574add22aa10ffff44f096a388bf1718896b8b';
-  const disconnect = useDisconnect()
+  
+  const { disconnect } = useDisconnect();
   const connect = Hooks.useConnect();
   const { address, isConnected } = useAccount();
-  const [connector] = useConnectors()
-  const [me, setMe] = useState<{ exp: string } | null>(null);
+  const [connector] = useConnectors();
+  const [userSession, setUserSession] = useState<UserSession | null>(null);
 
   const handleConnect = async () => {
     connect.mutate({
@@ -21,25 +29,36 @@ function App() {
       signInWithEthereum: {
         authUrl: `${SERVER_URL}/siwe`,
       },
-    })
-  }
+    });
+  };
+
+  const handleDisconnect = () => {
+    disconnect();
+  };
 
   useEffect(() => {
     if (isConnected) {
-      fetch(`${SERVER_URL}/api/me`, { credentials: 'include' })
-        .then((res) => res.text())
-        .then((data) => {
-          const parsedData = JSON.parse(data)
-          setMe(parsedData.user)
-        })
-        .catch((error) => {
-          console.error('Error fetching user data:', error)
-          setMe(null)
-        })
+      fetchUserSession();
     } else {
-      setMe(null)
+      setUserSession(null);
     }
-  }, [isConnected])
+  }, [isConnected]);
+
+  const fetchUserSession = async () => {
+    try {
+      const response = await fetch(`${SERVER_URL}/api/me`, { credentials: 'include' });
+      const responseText = await response.text();
+      const parsedData = JSON.parse(responseText);
+      setUserSession(parsedData.user);
+    } catch (error) {
+      console.error('Error fetching user session:', error);
+      setUserSession(null);
+    }
+  };
+
+  const sessionExpiry = userSession?.exp 
+    ? new Date(Number(userSession.exp) * 1000).toLocaleDateString() 
+    : 'Unknown';
 
   return (
     <>
@@ -55,9 +74,7 @@ function App() {
       {isConnected && (
         <div className="power-button-container">
           <button
-            onClick={() => {
-              disconnect.disconnect();
-            }}
+            onClick={handleDisconnect}
             className="power-button connected"
             title="Disconnect"
           >
@@ -100,19 +117,18 @@ function App() {
               <AccountDisplay
                 userAddress={address!}
                 serverAddress={MERCHANT_ADDRESS}
-                sessionExpiry={me?.exp ? new Date(Number(me.exp) * 1000).toLocaleDateString() : 'Unknown'}
+                sessionExpiry={sessionExpiry}
               />
             </div>
-            <PurchaseButton />
+            <PurchaseButtonSelf />
             <hr />
-            <DelegatePurchaseButton />
+            <PurchaseButtonDelegate />
             <RevokePermissionsButton />
-          </div >
-        )
-        }
+          </div>
+        )}
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
